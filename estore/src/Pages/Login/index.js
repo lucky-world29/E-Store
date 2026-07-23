@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { login } from "../../api/authApi";
 import "./_login.scss";
+import { validateLogin } from "../../Utils/validation";
 
 const Login = () => {
 
@@ -10,45 +11,80 @@ const Login = () => {
 
     const [formData, setFormData] = useState({
         email: "",
-        password: ""
+        password: "",
     });
 
+    const [errors, setErrors] = useState({
+        email: "",
+        password: "",
+    });
+
+    const [loading, setLoading] = useState(false);
+
+    const [showPassword, setShowPassword] = useState(false);
+
     const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+
+        const { name, value } = e.target;
+
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+
+        // Clear the error for the current field
+        setErrors((prev) => ({
+            ...prev,
+            [name]: "",
+        }));
     };
 
     const handleLogin = async () => {
 
-        if (!formData.email || !formData.password) {
-            toast.warning("Please enter your email and password.");
+        // Validate Login Form
+        const validationErrors = validateLogin(formData);
+
+        setErrors(validationErrors);
+
+        // Stop if validation fails
+        if (Object.keys(validationErrors).length > 0) {
             return;
         }
 
         try {
 
+            setLoading(true);
+
             const response = await login({
                 email: formData.email,
-                password: formData.password
+                password: formData.password,
             });
 
             // Save JWT Token
             localStorage.setItem("token", response.data.token);
+
             toast.success(response.data.message);
+
             console.log("Token:", response.data.token);
+
             setTimeout(() => {
                 navigate("/");
             }, 1000);
 
-        } catch (error) {
+        }
+        catch (error) {
 
             if (error.response) {
                 toast.error(error.response.data.message);
-            } else {
+            }
+            else {
                 toast.error("Something went wrong.");
             }
+
+        }
+        finally {
+
+            setLoading(false);
 
         }
 
@@ -56,52 +92,48 @@ const Login = () => {
 
     return (
         <div className="login-page">
+            <div className="login-card">
 
-            <div className="login-left">
-                <div className="login-brand">
-                    <h1>eStore</h1>
-                    <p>
-                        Sign in to continue shopping, track your orders,
-                        and keep your cart in sync.
-                    </p>
-                </div>
+                <div className="login-header">
 
-                <div className="login-highlight">
-                    <div>
-                        <i className="fa fa-lock" /> Secure access
+                    <div className="login-brand">
+                        <h1>eStore</h1>
+                        <p>Premium Shopping Experience</p>
                     </div>
-
-                    <div>
-                        <i className="fa fa-truck" /> Faster checkout
-                    </div>
-
-                    <div>
-                        <i className="fa fa-heart" /> Wishlist saved
-                    </div>
-                </div>
-            </div>
-
-            <div className="login-right">
-
-                <div className="login-card">
 
                     <span className="login-pill">
-                        Welcome back
+                        <i className="fa-solid fa-bag-shopping"></i>
+                        eStore
                     </span>
 
-                    <h2>Login</h2>
+                </div>
+
+                <div className="login-content">
+
+                    <h2>Welcome Back</h2>
 
                     <p>
-                        Enter your email and password to continue.
+                        Sign in to continue shopping and manage your orders.
                     </p>
 
-                    <div className="login-form">
+                    <form
+                        className="login-form"
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            handleLogin();
+                        }}
+                    >
+
+                        {/* Email */}
 
                         <div className="field">
+
                             <label>Email</label>
 
-                            <div className="input-wrap">
-                                <i className="fa fa-envelope" />
+                            <div
+                                className={`input-wrap ${errors.email ? "error" : ""}`}
+                            >
+                                <i className="fa fa-envelope"></i>
 
                                 <input
                                     type="email"
@@ -110,30 +142,66 @@ const Login = () => {
                                     onChange={handleChange}
                                     placeholder="Enter your email"
                                 />
+
                             </div>
+
+                            {errors.email && (
+                                <span className="error-text">
+                                    {errors.email}
+                                </span>
+                            )}
+
                         </div>
 
+                        {/* Password */}
+
                         <div className="field">
+
                             <label>Password</label>
 
-                            <div className="input-wrap">
-                                <i className="fa fa-lock" />
+                            <div
+                                className={`input-wrap ${errors.password ? "error" : ""}`}
+                            >
+                                <i className="fa fa-lock"></i>
 
                                 <input
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     name="password"
                                     value={formData.password}
                                     onChange={handleChange}
                                     placeholder="Enter your password"
                                 />
+
+                                <button
+                                    type="button"
+                                    className="password-toggle"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    <i
+                                        className={`fa ${showPassword
+                                                ? "fa-eye-slash"
+                                                : "fa-eye"
+                                            }`}
+                                    ></i>
+                                </button>
+
                             </div>
+
+                            {errors.password && (
+                                <span className="error-text">
+                                    {errors.password}
+                                </span>
+                            )}
+
                         </div>
+
+                        {/* Remember */}
 
                         <div className="login-row">
 
                             <label className="remember">
                                 <input type="checkbox" />
-                                Remember me
+                                Remember Me
                             </label>
 
                             <Link to="/forgot-password">
@@ -142,29 +210,41 @@ const Login = () => {
 
                         </div>
 
+                        {/* Button */}
+
                         <button
-                            type="button"
+                            type="submit"
                             className="login-btn"
-                            onClick={handleLogin}
+                            disabled={loading}
                         >
-                            Login
+                            {loading ? (
+                                <>
+                                    <i className="fa fa-spinner fa-spin"></i>
+                                    {" "}Signing In...
+                                </>
+                            ) : (
+                                "Sign In"
+                            )}
                         </button>
 
-                    </div>
+                    </form>
 
                     <div className="login-bottom">
-                        <span>New here?</span>
+
+                        <span>
+                            Don't have an account?
+                        </span>
 
                         <Link to="/register">
-                            Create account
+                            Create Account
                         </Link>
+
                     </div>
 
                 </div>
 
             </div>
-
-        </div>
+        </div >
     );
 };
 

@@ -34,3 +34,8 @@ export const resetPassword = (data) => {
 export const getMe = () => {
     return api.get("/auth/me");
 };
+
+// Check Email Availability
+export const checkEmail = (email) => {
+    return api.post("/auth/check-email", { email });
+};

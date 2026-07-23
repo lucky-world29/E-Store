@@ -7,7 +7,7 @@ import { addCartItem } from '../../Redux/Cart/cartSlice';
 const Products = () => {
 
     const productData = useSelector(state => state.product.products);
-    const cart = useSelector(state => state.cart);
+    // const cart = useSelector(state => state.cart);
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -15,44 +15,51 @@ const Products = () => {
     }, [dispatch]);
 
     const addToCart = (itemData) => {
-       
         dispatch(addCartItem(itemData));
     };
-    
 
+    console.log(productData);
+   return (
+    <div className="products-container">
+        {productData.map((product) => (
+            <div className="product-card" key={product._id}>
 
+                <div className="product-image-container">
 
-    return (
-        <div className='products-container'>
-            {
-                productData.map((product, index) => {
-                    return (
-                        <div className='mx-5 p-3 product-card' key={product.id || index}>
-                            <div className='product-image-container'>
-                                {/* <img src={require('../../assets/images/shop/' + product.images[0])} /> */}
-                            </div>
-                            <div className='product-info'>
-                                <h5> <a href='#'>{product.title}</a> </h5>
-                                <p className='product-price'> ${product.price} </p>
-                            </div>
-                            <div className='my-3' onClick={() => addToCart(product)}>
-                                <div className='cart-button'>
-                                    <div className='cart-icon-container'>
-                                        <i className='fa fa-shopping-cart mx-4'></i>
-                                    </div>
-                                    <div className='cart-text-container mx-3'>
-                                        <p>Add to Cart</p>
-                                    </div>
+                    <img
+                        src={`http://localhost:5001${product.images?.[0]}`}
+                        alt={product.title}
+                    />
 
-                                </div>
-                            </div>
+                </div>
 
-                        </div>
-                    )
-                })
-            }
-        </div>
-    )
+                <div className="product-info">
+
+                    <span className="product-category">
+                        {product.category?.name || "Category"}
+                    </span>
+
+                    <h5>{product.title}</h5>
+
+                    <p className="product-price">
+                        ₹{product.price}
+                    </p>
+
+                </div>
+
+                <button
+                    className="cart-button"
+                    onClick={() => addToCart(product)}
+                >
+                    <i className="fa fa-shopping-cart"></i>
+
+                    <span>Add to Cart</span>
+                </button>
+
+            </div>
+        ))}
+    </div>
+)
 }
 
 export default Products;

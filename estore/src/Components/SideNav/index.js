@@ -1,68 +1,70 @@
-import { useDispatch, useSelector } from 'react-redux';
-import './_side-nav.scss';
-import accordionSlice from '../../Redux/Accordion';
-import { useEffect } from 'react';
-import { getCategories } from '../../Redux/Category/actions';
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { getCategories } from "../../Redux/Category/actions";
+import "./_side-nav.scss";
 
 const SideNav = () => {
 
     const accordionData = useSelector(state => state.category.categories);
     const dispatch = useDispatch();
 
-    // useEffect(()=>{
-    //     dispatch(getCategories());
-    // },[]);
-
     useEffect(() => {
         dispatch(getCategories());
     }, [dispatch]);
 
-    console.log("Categories:", accordionData);
-
     return (
-        <div className='side-nav'>
-            <div className='section-title'>
+        <div className="side-nav">
+
+            <div className="section-title">
                 <h3>Category</h3>
             </div>
 
-            <div className='accordion'>
-                {
-                    accordionData.map((accordionCategory, key) => {
-                        if (accordionCategory.parent_category_id === null) {
-                            return (
-                                <div className='accordion-item individual-category' key={accordionCategory.id || key}>
-                                    <div className='accordion-header'>
-                                        <button className='accordion-button' data-bs-target={"#collapse" + key} data-bs-toggle="collapse">
-                                            <div className='category-title'>
-                                                <a href='#'>{accordionCategory.category}</a>
-                                                {/* Here i del .category and the code run correctly but I don't know how  */}
-                                            </div>
-                                        </button>
-                                    </div>
-                                    <div className='accordion-collapse collapse show ' id={"collapse" + key}>
-                                        <div className='accordion-body'>
-                                            <ul>
-                                                {
-                                                    accordionData.map((subCategory, subKey) => {
-                                                        if (accordionCategory.id === subCategory.parent_category_id) {
-                                                            return <li key={subCategory.id || subKey} className='sub-items'><a href='#'>{subCategory.category} </a></li>
-                                                        }
-                                                    })
+            <div className="accordion" id="categoryAccordion">
 
-                                                }
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            )
-                        }
+                {accordionData.map((category, index) => (
 
-                    })
-                }
+                    <div className="accordion-item" key={category._id}>
+
+                        <h2
+                            className="accordion-header"
+                            id={`heading${index}`}
+                        >
+
+                            <button
+                                className="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target={`#collapse${index}`}
+                                aria-expanded="false"
+                                aria-controls={`collapse${index}`}
+                            >
+                                {category.name}
+                            </button>
+
+                        </h2>
+
+                        <div
+                            id={`collapse${index}`}
+                            className="accordion-collapse collapse"
+                            data-bs-parent="#categoryAccordion"
+                        >
+
+                            <div className="accordion-body">
+
+                                No Sub Categories
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                ))}
 
             </div>
 
         </div>
-    )
-}
+    );
+};
+
 export default SideNav;

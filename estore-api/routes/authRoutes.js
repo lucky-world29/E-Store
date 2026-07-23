@@ -4,6 +4,7 @@ const {
     registerUser,
     verifyOtp,
     loginUser,
+    checkEmail,
     getMe,
     resendOtp,
     forgotPassword,
@@ -22,6 +23,7 @@ router.post("/verify-otp", verifyOtp);
 router.post("/login", loginUser);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
+router.post("/check-email", checkEmail);
 // ==========================================================
 // Private Routes
 // ==========================================================

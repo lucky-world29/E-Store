@@ -10,6 +10,8 @@ const TopNav = () => {
   const [user, setUser] = useState(null);
   const cartItemCount = useSelector((state) => state.cart.totalItems);
 
+  console.log("Cart Count:", cartItemCount);
+
   useEffect(() => {
 
     const loadUser = async () => {
@@ -23,7 +25,8 @@ const TopNav = () => {
       try {
 
         const response = await getMe();
-
+        console.log("User Response:", response.data);
+        console.log("User:", response.data.user);
         setUser(response.data.user);
 
       } catch (error) {
@@ -94,7 +97,7 @@ const TopNav = () => {
                 <h5>
                   <Link to="/profile" className="profile-link">
                     <i className="fa fa-user-circle user-icon" />
-                    &nbsp; Hi, {user.name}
+                    &nbsp; Hi, {user.firstName}
                   </Link>
                 </h5>
 

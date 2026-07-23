@@ -700,11 +700,41 @@ const resetPassword = async (req, res) => {
     }
 };
 
+const checkEmail = async (req, res) => {
+
+    try {
+
+        const { email } = req.body;
+
+        const normalizedEmail = email.toLowerCase().trim();
+
+        const user = await User.findOne({
+            email: normalizedEmail
+        });
+
+        return res.status(200).json({
+            success: true,
+            exists: !!user
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error."
+        });
+
+    }
+
+};
 
 module.exports = {
     registerUser,
     verifyOtp,
     loginUser,
+    checkEmail,
     getMe,
     resendOtp,
     forgotPassword,
